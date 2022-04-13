@@ -6,9 +6,10 @@ from core.data_handling.generators.lsh_sequence import LSHSeq
 from core.data_description import DataDescription
 import ui.chart_utils as cu
 import numpy as np
+from unittest import TestCase
 
 
-class TestGenerators():
+class TestGenerators(TestCase):
     """
     Отрисовка двумерных сгенерированных точек
     """

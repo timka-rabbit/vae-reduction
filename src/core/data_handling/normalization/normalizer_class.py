@@ -1,120 +1,67 @@
+import numpy as np
 from typing import Tuple, List
 
+from core.data_description import DataDescription
+from core.data_class import Data
 
-''' Класс нормировки данных '''
-class Normalizer():
-    
-    '''
-    Parameters
-    ----------
-    dim : int
-        Размерность входных данных.
-    irr_dim : int
-        Количество незначащих переменных.
-    range_val_pairs : List[Tuple[float,float]]
-        Диапазон значений входных данных.
-    norm_min : float, optional
-        Нижняя граница нормированных данных (по умолчанию 0).
-    norm_max : float, optional
-        Верхняя граница нормированных данных (по умолчанию 1).
-    '''
-    def __init__(self, dim : int, irr_dim : int, range_val_pairs : List[Tuple[float,float]], norm_min : float = 0., norm_max : float = 1.):
-        self.dim = dim
-        self.irr_dim = irr_dim
-        self.range_val_pairs = range_val_pairs
-        self.range_val = [(i[1] - i[0]) for i in self.range_val_pairs]
-        self.norm_min = norm_min
-        self.norm_max = norm_max
-        self.range_norm = norm_max - norm_min
-    
-    
-    def __normire(self, entryVal : float, ind : int) -> float:
-        '''
-        Parameters
-        ----------
-        entryVal : float
-            Входное значение для нормировки.
-        ind : int
-            Индекс элемента в массиве.
 
-        Returns
-        -------
-        float
-            Нормированное значение.
+class Normalizer(object):
+    """
+    Класс нормировки данных
+    """
 
-        '''
-        return self.norm_min + ((entryVal - self.range_val_pairs[ind][0]) * self.range_norm / self.range_val[ind])
-    
-    def __renormire(self, normVal : float, ind : int) -> float:
-        '''
-        Parameters
-        ----------
-        normVal : float
-            Нормированное значение для денормировки.
-        ind : int
-            Индекс элемента в массиве.
+    @staticmethod
+    def norm(data, norm_min: float = 0., norm_max: float = 1.) -> Data:
+        """
+        Нормировка данных
 
-        Returns
-        -------
-        float
-            Денормированное значение.
-        '''
-        return self.range_val_pairs[ind][0] + ((normVal - self.norm_min) / self.range_norm * self.range_val[ind])
-    
-    def normalize(self, data) -> List[List[float]]:
-        '''
-        Parameters
-        ----------
-        data : list, array
-            Входной набор данных для нормировки.
+        :param data: Data. Данные для нормировки.
+        :param norm_min: float. Нижняя граница нормированных данных (по умолчанию 0).
+        :param norm_max: float. Верхняя граница нормированных данных (по умолчанию 1).
+        :return: Data. Нормированные данные.
+        """
+        x_dim = data.description.x_dim
+        y_dim = data.description.y_dim
+        bounds_x_0, bounds_x_1 = zip(*data.description.x_bounds)
+        delta_x = np.array([bounds_x_0[i] - bounds_x_1[i] for i in range(x_dim)])
+        bounds_y_0, bounds_y_1 = zip(*data.description.y_bounds)
+        delta_y = np.array([bounds_y_0[i] - bounds_y_1[i] for i in range(y_dim)])
+        delta_norm = norm_max - norm_min
 
-        Returns
-        -------
-        List[List[float]]
-            Нормированный набор данных.
-        '''
-        count = 0
-        if type(data) == list: 
-          count = len(data)
-        else:
-          count = data.shape[0]
-          if count == None:
-            count = 1
-        normData = []
-        for i in range(count):
-            cur_sample = []
-            for j in range(self.dim):
-                cur_sample.append(self.__normire(data[i][j], j))
-            for j in range(self.dim, self.dim + self.irr_dim):
-                cur_sample.append(data[i][j])
-            normData.append(cur_sample)
-        return normData
-    
-    def renormalize(self, normData) -> List[List[float]]:
-        '''
-        Parameters
-        ----------
-        normData : list, array
-            Нормированный набор данных.
+        norm_x = norm_min + ((data.x.copy() - np.array(bounds_x_0)) * delta_norm / delta_x)
+        norm_y = norm_min + ((data.y.copy() - np.array(bounds_y_0)) * delta_norm / delta_y)
+        return Data(x=norm_x, y=norm_y,
+                    description=DataDescription(x_dim=data.description.x_dim,
+                                                y_dim=data.description.y_dim,
+                                                x_bounds=[(0., 1.) for i in range(x_dim)],
+                                                y_bounds=[(0., 1.) for i in range(y_dim)]))
 
-        Returns
-        -------
-        List[List[float]]
-            Денормированный набор данных.
-        '''
-        count = 0
-        if type(normData) == list: 
-          count = len(normData)
-        else:
-          count = normData.shape[0]
-          if count == None:
-            count = 1
-        data = []
-        for i in range(count):
-            cur_sample = []
-            for j in range(self.dim):
-                cur_sample.append(self.__renormire(normData[i][j], j))
-            for j in range(self.dim, self.dim + self.irr_dim):
-                cur_sample.append(normData[i][j])
-            data.append(cur_sample)
-        return data
+    @staticmethod
+    def denorm(data, x_bounds, y_bounds) -> Data:
+        """
+        Денормировка данных
+
+        :param data: Data. Нормированные данные для денормировки.
+        :param x_bounds: List[Tuple[float, float]]. Границы данных x для денормирования.
+        :param y_bounds: List[Tuple[float, float]]. Границы данных y для денормирования.
+        :return: Data. Денормированные данные.
+        """
+        x_dim = data.description.x_dim
+        y_dim = data.description.y_dim
+        bounds_x_0_norm, bounds_x_1_norm = zip(*data.description.x_bounds)
+        delta_x_norm = np.array([bounds_x_0_norm[i] - bounds_x_1_norm[i] for i in range(x_dim)])
+        bounds_y_0_norm, bounds_y_1_norm = zip(*data.description.y_bounds)
+        delta_y_norm = np.array([bounds_y_0_norm[i] - bounds_y_1_norm[i] for i in range(y_dim)])
+
+        bounds_x_0, bounds_x_1 = zip(*x_bounds)
+        delta_x = np.array([bounds_x_0[i] - bounds_x_1[i] for i in range(x_dim)])
+        bounds_y_0, bounds_y_1 = zip(*y_bounds)
+        delta_y = np.array([bounds_y_0[i] - bounds_y_1[i] for i in range(y_dim)])
+
+        x = np.array(bounds_x_0) + ((data.x.copy() - np.array(bounds_x_0_norm)) / delta_x_norm * delta_x)
+        y = np.array(bounds_y_0) + ((data.y.copy() - np.array(bounds_y_0_norm)) / delta_y_norm * delta_y)
+        return Data(x=x, y=y,
+                    description=DataDescription(x_dim=data.description.x_dim,
+                                                y_dim=data.description.y_dim,
+                                                x_bounds=x_bounds,
+                                                y_bounds=y_bounds))

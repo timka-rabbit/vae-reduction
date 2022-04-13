@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 
 from core.data_description import DataDescription
 
