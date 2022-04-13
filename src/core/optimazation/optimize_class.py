@@ -1,4 +1,4 @@
-from autoencoder_class import AutoencoderClass
+from core.nets.autoencoder_class import AutoencoderClass
 from function_class import Function
 from smt.applications import EGO
 from smt.sampling_methods import LHS

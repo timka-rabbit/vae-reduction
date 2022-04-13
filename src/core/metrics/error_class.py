@@ -1,4 +1,4 @@
-from autoencoder_class import AutoencoderClass
+from core.nets.autoencoder_class import AutoencoderClass
 from function_class import Function
 from generator_class import DataGenerator
 from sklearn.metrics import mean_absolute_error
