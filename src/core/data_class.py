@@ -14,7 +14,7 @@ class Data(object):
         """
         self.x = x
         self.y = y
-        self.description = description
+        self._description = description
         self.init()
 
     def init(self):
@@ -24,15 +24,25 @@ class Data(object):
         assert self.x.ndim == 2
         assert self.y.ndim == 2
         assert self.x.shape[0] == self.y.shape[0]
-        if self.description is None:
+        if self._description is None:
             x_dim = self.x.shape[1]
             y_dim = self.y.shape[1]
             x_bounds = DataDescription.calculate_bounds(self.x)
             y_bounds = DataDescription.calculate_bounds(self.y)
-            self.description = DataDescription(x_dim=x_dim, y_dim=y_dim, x_bounds=x_bounds, y_bounds=y_bounds)
+            self._description = DataDescription(x_dim=x_dim, y_dim=y_dim, x_bounds=x_bounds, y_bounds=y_bounds)
         else:
-            assert self.description.x_dim == self.x.shape[1]
-            assert self.description.y_dim == self.y.shape[1]
+            assert self._description.x_dim == self.x.shape[1]
+            assert self._description.y_dim == self.y.shape[1]
+            if self._description.x_bounds is None:
+                x_bounds = DataDescription.calculate_bounds(self.x)
+            else:
+                x_bounds = self._description.x_bounds
+            if self._description.y_bounds is None:
+                y_bounds = DataDescription.calculate_bounds(self.y)
+            else:
+                y_bounds = self._description.y_bounds
+            self._description = DataDescription(x_dim=self._description.x_dim, y_dim=self._description.y_dim,
+                                                x_bounds=x_bounds, y_bounds=y_bounds)
 
     def add(self, x, y):
         """
@@ -56,4 +66,4 @@ class Data(object):
         """
         Описание данных
         """
-        return self.description
+        return self._description

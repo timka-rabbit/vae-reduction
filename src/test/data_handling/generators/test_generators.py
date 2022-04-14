@@ -16,24 +16,20 @@ class TestGenerators(TestCase):
 
     def test_grid_2d(self):
         desc = DataDescription(x_dim=2, y_dim=1, x_bounds=[(0, 1), (0, 1)])
-        data = GridSeq().get_data(description=desc, samples_num=1000)
-        x, y = np.array_split(data, 2, axis=1)
-        cu.plot2d_scatter(x, y, 'Генерация сетки точек')
+        x = GridSeq().get_data(description=desc, samples_num=1000)
+        cu.plot2d_scatter(x[:, 0], x[:, 1], 'Генерация сетки точек')
 
     def test_rand_2d(self):
         desc = DataDescription(x_dim=2, y_dim=1, x_bounds=[(0, 1), (0, 1)])
-        data = RandSeq().get_data(description=desc, samples_num=1000)
-        x, y = np.array_split(data, 2, axis=1)
-        cu.plot2d_scatter(x, y, 'Случайная генерация точек')
+        x = RandSeq().get_data(description=desc, samples_num=1000)
+        cu.plot2d_scatter(x[:, 0], x[:, 1], 'Случайная генерация точек')
 
     def test_sobol_2d(self):
         desc = DataDescription(x_dim=2, y_dim=1, x_bounds=[(0, 1), (0, 1)])
-        data = SobolSeq().get_data(description=desc, samples_num=1000)
-        x, y = np.array_split(data, 2, axis=1)
-        cu.plot2d_scatter(x, y, 'Генерация точек Соболем')
+        x = SobolSeq().get_data(description=desc, samples_num=1000)
+        cu.plot2d_scatter(x[:, 0], x[:, 1], 'Генерация точек Соболем')
 
     def test_lsh_2d(self):
         desc = DataDescription(x_dim=2, y_dim=1, x_bounds=[(0, 1), (0, 1)])
-        data = LSHSeq().get_data(description=desc, samples_num=1000)
-        x, y = np.array_split(data, 2, axis=1)
-        cu.plot2d_scatter(x, y, 'Генерация точек латинским гиперкубом')
+        x = LSHSeq().get_data(description=desc, samples_num=1000)
+        cu.plot2d_scatter(x[:, 0], x[:, 1], 'Генерация точек латинским гиперкубом')

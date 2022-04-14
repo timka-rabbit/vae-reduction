@@ -23,18 +23,21 @@ class Normalizer(object):
         x_dim = data.description.x_dim
         y_dim = data.description.y_dim
         bounds_x_0, bounds_x_1 = zip(*data.description.x_bounds)
-        delta_x = np.array([bounds_x_0[i] - bounds_x_1[i] for i in range(x_dim)])
+        delta_x = np.array([bounds_x_1[i] - bounds_x_0[i] for i in range(x_dim)])
         bounds_y_0, bounds_y_1 = zip(*data.description.y_bounds)
-        delta_y = np.array([bounds_y_0[i] - bounds_y_1[i] for i in range(y_dim)])
+        delta_y = np.array([bounds_y_1[i] - bounds_y_0[i] for i in range(y_dim)])
         delta_norm = norm_max - norm_min
 
+        print(data.x)
+        print(delta_x)
+        print(data.x / delta_x)
         norm_x = norm_min + ((data.x.copy() - np.array(bounds_x_0)) * delta_norm / delta_x)
         norm_y = norm_min + ((data.y.copy() - np.array(bounds_y_0)) * delta_norm / delta_y)
         return Data(x=norm_x, y=norm_y,
                     description=DataDescription(x_dim=data.description.x_dim,
                                                 y_dim=data.description.y_dim,
-                                                x_bounds=[(0., 1.) for i in range(x_dim)],
-                                                y_bounds=[(0., 1.) for i in range(y_dim)]))
+                                                x_bounds=[(norm_min, norm_max) for i in range(x_dim)],
+                                                y_bounds=[(norm_min, norm_max) for i in range(y_dim)]))
 
     @staticmethod
     def denorm(data, x_bounds, y_bounds) -> Data:
@@ -49,14 +52,14 @@ class Normalizer(object):
         x_dim = data.description.x_dim
         y_dim = data.description.y_dim
         bounds_x_0_norm, bounds_x_1_norm = zip(*data.description.x_bounds)
-        delta_x_norm = np.array([bounds_x_0_norm[i] - bounds_x_1_norm[i] for i in range(x_dim)])
+        delta_x_norm = np.array([bounds_x_1_norm[i] - bounds_x_0_norm[i] for i in range(x_dim)])
         bounds_y_0_norm, bounds_y_1_norm = zip(*data.description.y_bounds)
-        delta_y_norm = np.array([bounds_y_0_norm[i] - bounds_y_1_norm[i] for i in range(y_dim)])
+        delta_y_norm = np.array([bounds_y_1_norm[i] - bounds_y_0_norm[i] for i in range(y_dim)])
 
         bounds_x_0, bounds_x_1 = zip(*x_bounds)
-        delta_x = np.array([bounds_x_0[i] - bounds_x_1[i] for i in range(x_dim)])
+        delta_x = np.array([bounds_x_1[i] - bounds_x_0[i] for i in range(x_dim)])
         bounds_y_0, bounds_y_1 = zip(*y_bounds)
-        delta_y = np.array([bounds_y_0[i] - bounds_y_1[i] for i in range(y_dim)])
+        delta_y = np.array([bounds_y_1[i] - bounds_y_0[i] for i in range(y_dim)])
 
         x = np.array(bounds_x_0) + ((data.x.copy() - np.array(bounds_x_0_norm)) / delta_x_norm * delta_x)
         y = np.array(bounds_y_0) + ((data.y.copy() - np.array(bounds_y_0_norm)) / delta_y_norm * delta_y)
