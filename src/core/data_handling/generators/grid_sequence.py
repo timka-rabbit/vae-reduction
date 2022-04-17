@@ -11,7 +11,7 @@ class GridSeq(AbstractGenerator):
     def get_data(self, description: DataDescription, samples_num: int,
                  irrelevant_var_count: int = 0) -> np.ndarray:
         x_limits = description.x_bounds
-        dimensions = len(x_limits)
+        dimensions = description.x_dim
         axes_num = int(samples_num ** (1 / dimensions))
         # создание значений по каждой координате
         dim_values = [np.linspace(x_limits[dim][0], x_limits[dim][1], axes_num) for dim in range(dimensions)]

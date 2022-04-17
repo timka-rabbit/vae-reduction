@@ -1,5 +1,4 @@
 import numpy as np
-from typing import Tuple, List
 
 from core.data_description import DataDescription
 from core.data_class import Data
@@ -28,9 +27,6 @@ class Normalizer(object):
         delta_y = np.array([bounds_y_1[i] - bounds_y_0[i] for i in range(y_dim)])
         delta_norm = norm_max - norm_min
 
-        print(data.x)
-        print(delta_x)
-        print(data.x / delta_x)
         norm_x = norm_min + ((data.x.copy() - np.array(bounds_x_0)) * delta_norm / delta_x)
         norm_y = norm_min + ((data.y.copy() - np.array(bounds_y_0)) * delta_norm / delta_y)
         return Data(x=norm_x, y=norm_y,

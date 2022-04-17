@@ -1,4 +1,4 @@
-from smt.sampling_methods import LHS
+from scipy.stats.qmc import LatinHypercube as LSH
 import numpy as np
 
 from core.data_handling.generators.abstract_generator import AbstractGenerator
@@ -11,8 +11,7 @@ class LSHSeq(AbstractGenerator):
     """
     def get_data(self, description: DataDescription, samples_num: int,
                  irrelevant_var_count: int = 0) -> np.ndarray:
-        x_limits = np.array(description.x_bounds)
-        sampling = LHS(xlimits=x_limits, criterion='corr')
-        points = sampling(samples_num)
+        sampler = LSH(d=description.x_dim)
+        points = sampler.random(samples_num)
         points = self._add_irr_vars(points, irrelevant_var_count)
         return points

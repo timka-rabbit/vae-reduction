@@ -18,8 +18,4 @@ class RandSeq(AbstractGenerator):
                 point.append(random.uniform(i[0], i[1]))
             points.append(np.array(point))
         points = self._add_irr_vars(np.array(points), irrelevant_var_count)
-        # if write_in_file:
-        #     col = [('x' + str(i+1)) for i in range(self.dim + irrelevant_var_count)]
-        #     df = pd.DataFrame(arr, columns=col)
-        #     df.to_csv(f'../../DataSet/random_{self.dim}_{samples_num}_{irrelevant_var_count}.csv')
         return points
