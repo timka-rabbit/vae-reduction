@@ -4,7 +4,7 @@ from core.metrics.MAE import MAE
 from core.metrics.RMSE import RMSE
 
 from functions.parametric_func import Ellipse
-from core.data_handling.generators.grid_sequence import GridSeq as Grid
+from core.data_handling.generators.regular_grid import Grid
 from unittest import TestCase
 
 
