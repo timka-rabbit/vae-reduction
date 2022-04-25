@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.optimize import minimize
-from core.data_handling.generators.lsh_sequence import LSHSeq
+from core.data_handling.generators.lhs_sequence import LHS
 from core.data_description import DataDescription
 
 from core.optimazation.abstract_optimizer import AbstractOptimizer
@@ -28,8 +28,8 @@ class Minimizer(AbstractOptimizer):
         :param n_iter: int. Количество итераций алгоритма.
         :return: ndarray. Оптимальное решение в виде массива.
         """
-        x0 = LSHSeq().get_data(description=self.data_description,
-                               samples_num=self.data_description.x_dim + 1)[0].reshape(1, self.data_description.x_dim)
+        x0 = LHS().get_data(description=self.data_description,
+                            samples_num=self.data_description.x_dim + 1)[0].reshape(1, self.data_description.x_dim)
         res = minimize(fun=func, x0=x0, method=self.method,
                        options={'maxiter': n_iter})
         return res.x

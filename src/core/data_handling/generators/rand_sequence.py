@@ -5,7 +5,7 @@ from core.data_handling.generators.abstract_generator import AbstractGenerator
 from core.data_description import DataDescription
 
 
-class RandSeq(AbstractGenerator):
+class Rand(AbstractGenerator):
     """
     Случайная генерация данных от 0 до 1
     """
