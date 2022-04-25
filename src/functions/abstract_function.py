@@ -24,10 +24,17 @@ class AbstractFunc(object):
         """
         return self._description
 
+    def _verify(self, points: np.ndarray) -> np.ndarray:
+        """
+        В случае прихода одной точки, оборачиваем её в двумерный массив
+        """
+        if points.size == self._description.x_dim:
+            points = points.reshape(1, self._description.x_dim)
+        return points
+
     def evaluate(self, points: np.ndarray) -> np.ndarray:
         """
         Вычисление значения функции в точке
-
         :param points: ndarray. Двумерный массив точек.
         :returns: ndarray. Двумерный массив значений модели в поданных точках.
         """

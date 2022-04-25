@@ -11,8 +11,6 @@ class Ellipse(AbstractFunc):
 
     def __init__(self, center=(0., 0.), rx=2., ry=1.):
         """
-        Конструктор
-
         :param center: Tuple[float, float]. Центр эллипса.
         :param rx: float. Радиус первой полуоси.
         :param ry: float. Радиос второй полуоси.
@@ -23,10 +21,11 @@ class Ellipse(AbstractFunc):
         self.ry = ry
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "Эллипс"
 
-    def evaluate(self, points):
+    def evaluate(self, points: np.ndarray) -> np.ndarray:
+        points = self._verify(points)
         x = self.rx * np.cos(points)
         y = self.ry * np.sin(points)
         xy = np.concatenate((x, y), axis=1) + np.array([self.x0, self.y0])
@@ -40,15 +39,13 @@ class Circle(Ellipse):
 
     def __init__(self, center=(0., 0.), r=1.):
         """
-        Конструктор
-
         :param center: Tuple[float, float]. Центр окружности.
         :param r: float. Радиус окружности.
         """
         super().__init__(center=center, rx=r, ry=r)
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "Окружность"
 
 
@@ -66,17 +63,18 @@ class Ellipsoid(AbstractFunc):
         :param ry: Радиус второй полуоси.
         :param rz: Радиус третьей полуоси.
         """
-        super().__init__(DataDescription(x_dim=1, y_dim=1, x_bounds=[(0, 2*np.pi), (0, np.pi)]))
+        super().__init__(DataDescription(x_dim=2, y_dim=1, x_bounds=[(0, 2*np.pi), (0, np.pi)]))
         self.x0, self.y0, self.z0 = center
         self.rx = rx
         self.ry = ry
         self.rz = rz
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "Эллипсоид"
 
-    def evaluate(self, points):
+    def evaluate(self, points: np.ndarray) -> np.ndarray:
+        points = self._verify(points)
         u = points[:, 0].reshape((-1, 1))
         v = points[:, 1].reshape((-1, 1))
         x = self.rx * np.cos(u) * np.sin(v)
@@ -93,13 +91,11 @@ class Sphere(Ellipsoid):
 
     def __init__(self, center=(0., 0., 0.), r=1.):
         """
-        Конструктор
-
         :param center: Tuple[float, float, float]. Центр сферы.
         :param r: float. Радиус сферы.
         """
         super().__init__(center=center, rx=r, ry=r, rz=r)
 
     @property
-    def name(self):
+    def name(self) -> str:
         return "Сфера"
