@@ -4,7 +4,7 @@ from core.data_handling.generators.abstract_generator import AbstractGenerator
 from core.data_description import DataDescription
 
 
-class GridSeq(AbstractGenerator):
+class Grid(AbstractGenerator):
     """
     Генерация данных на равномерной сетке
     """
@@ -20,5 +20,5 @@ class GridSeq(AbstractGenerator):
         meshed_values = [v.ravel() for v in meshed_values]
         # объединение значений в точки размерности (m, n) где m число точек в сетке, n - размерность пространства
         points = np.stack(meshed_values).T
-        points = self._add_irr_vars(points, irrelevant_var_count)
+        points = self._add_irr_vars(description, points, irrelevant_var_count)
         return points

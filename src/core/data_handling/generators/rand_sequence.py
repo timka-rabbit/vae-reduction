@@ -17,5 +17,5 @@ class RandSeq(AbstractGenerator):
             for i in description.x_bounds:
                 point.append(random.uniform(i[0], i[1]))
             points.append(np.array(point))
-        points = self._add_irr_vars(np.array(points), irrelevant_var_count)
+        points = self._add_irr_vars(description, np.array(points), irrelevant_var_count)
         return points

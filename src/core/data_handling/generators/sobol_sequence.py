@@ -13,5 +13,5 @@ class SobolSeq(AbstractGenerator):
                  irrelevant_var_count: int = 0) -> np.ndarray:
         sampler = Sobol(d=description.x_dim)
         points = sampler.random(samples_num)
-        points = self._add_irr_vars(points, irrelevant_var_count)
+        points = self._add_irr_vars(description, points, irrelevant_var_count)
         return points
