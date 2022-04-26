@@ -8,8 +8,6 @@ class DataDescription(object):
     """
     def __init__(self, x_dim, y_dim, x_bounds=None, y_bounds=None):
         """
-        Конструктор
-
         :param x_dim: int. Размерность области определения.
         :param y_dim: int. Размерность области значений.
         :param x_bounds: List[Tuple[float, float]]. Границы данных области определения.
@@ -52,7 +50,6 @@ class DataDescription(object):
     def calculate_bounds(data) -> List[Tuple[float, float]]:
         """
         Вычисление граничных значений в наборе данных
-
         :param data: ndarray. Двумерный массив точек.
         :returns: List[Tuple[float, float]]. Список границ.
         """

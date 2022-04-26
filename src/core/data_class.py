@@ -1,5 +1,5 @@
 import numpy as np
-
+from core.data_handling.normalization.normalizer_class import Normalizer
 from core.data_description import DataDescription
 
 
@@ -67,3 +67,31 @@ class Data(object):
         Описание данных
         """
         return self._description
+
+    def get_x_norm(self):
+        """
+        Получение нормированных значений x.
+        """
+        return Normalizer.norm(self.x, self._description.x_bounds)
+
+    def get_y_norm(self):
+        """
+        Получение нормированных значений y.
+        """
+        return Normalizer.norm(self.y, self._description.y_bounds)
+
+    def get_x_denorm(self, x_bounds):
+        """
+        Получение денормированных значений x.
+        :param x_bounds: List[Tuple(float, float)]. Границы x для денормировки.
+        """
+        assert len(self._description.x_bounds) == len(x_bounds)
+        return Normalizer.denorm(self.x, x_bounds)
+
+    def get_y_denorm(self, y_bounds):
+        """
+        Получение денормированных значений y.
+        :param y_bounds: List[Tuple(float, float)]. Границы y для денормировки.
+        """
+        assert len(self._description.y_bounds) == len(y_bounds)
+        return Normalizer.denorm(self.y, y_bounds)
