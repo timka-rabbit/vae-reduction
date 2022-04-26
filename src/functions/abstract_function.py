@@ -26,10 +26,13 @@ class AbstractFunc(object):
 
     def _verify(self, points: np.ndarray) -> np.ndarray:
         """
-        В случае прихода одной точки, оборачиваем её в двумерный массив
+        В случае прихода одной точки, оборачиваем её в двумерный массив.
         """
-        if points.size == self._description.x_dim:
+        if points.ndim == 1:
             points = points.reshape(1, self._description.x_dim)
+        assert points.shape[1] >= self._description.x_dim
+        if points.shape[1] > self._description.x_dim:
+            points = points[:, :self._description.x_dim]
         return points
 
     def evaluate(self, points: np.ndarray) -> np.ndarray:
