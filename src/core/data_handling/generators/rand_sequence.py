@@ -3,6 +3,7 @@ import numpy as np
 
 from core.data_handling.generators.abstract_generator import AbstractGenerator
 from core.data_description import DataDescription
+from core.data_handling.normalization.normalizer_class import Normalizer
 
 
 class Rand(AbstractGenerator):
@@ -17,5 +18,6 @@ class Rand(AbstractGenerator):
             for i in description.x_bounds:
                 point.append(random.uniform(i[0], i[1]))
             points.append(np.array(point))
+        points = Normalizer.denorm(np.array(points), description.x_bounds)
         points = self._add_irr_vars(description, np.array(points), irrelevant_var_count)
         return points

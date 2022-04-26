@@ -16,7 +16,7 @@ class TestNormalization(TestCase):
         y = func.evaluate(x)
         data = Data(y[:, 0, np.newaxis], y[:, 1, np.newaxis])
         ui.plot2d(data.x, data.y, 'Обычный график')
-        norm_data = Normalizer.norm(data)
+        norm_data = Data(data.get_x_norm(), data.get_y_norm())
         ui.plot2d(norm_data.x, norm_data.y, 'Нормированный график')
 
     def test_ellipse_norm_2(self):
@@ -35,7 +35,8 @@ class TestNormalization(TestCase):
         y = func.evaluate(x)
         data = Data(y[:, 0, np.newaxis], y[:, 1, np.newaxis])
         ui.plot2d(data.x, data.y, 'Обычный график')
-        denorm_data = Normalizer.denorm(data, x_bounds=[(-4, 4)], y_bounds=[(-2, 2)])
+        denorm_data = Data(data.get_x_denorm(x_bounds=[(-4, 4)]),
+                           data.get_y_denorm(y_bounds=[(-2, 2)]))
         ui.plot2d(denorm_data.x, denorm_data.y, 'Денормированный график')
 
     def test_ellipse_denorm_2(self):
