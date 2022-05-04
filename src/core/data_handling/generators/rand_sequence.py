@@ -8,7 +8,7 @@ from core.data_handling.normalization.normalizer_class import Normalizer
 
 class Rand(AbstractGenerator):
     """
-    Случайная генерация данных от 0 до 1
+    Случайная генерация данных
     """
     def get_data(self, description: DataDescription, samples_num: int,
                  irrelevant_var_count: int = 0) -> np.ndarray:
