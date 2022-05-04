@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Union
 
 from core.data_description import DataDescription
 
@@ -8,12 +9,13 @@ class AbstractGenerator(object):
     Интерфейс генератора данных
     """
 
-    def get_data(self, description: DataDescription, samples_num: int,
+    def get_data(self, description: DataDescription, samples_num: Union[int, list],
                  irrelevant_var_count: int = 0) -> np.ndarray:
         """
         Генерация данных
         :param description: DataDescription. Описание областей определения и значений.
-        :param samples_num: int. Количество точек.
+        :param samples_num: Union[int, list]. Для генераторов указывается количество точек.
+        Для сетки нужно указывать явно число точек для каждой координаты в виде списка.
         :param irrelevant_var_count: int. Количество незначимых параметров.
         :return: Массив записей.
         """

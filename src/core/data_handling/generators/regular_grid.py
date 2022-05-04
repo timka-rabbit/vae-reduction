@@ -8,13 +8,12 @@ class Grid(AbstractGenerator):
     """
     Генерация данных на равномерной сетке
     """
-    def get_data(self, description: DataDescription, samples_num: int,
+    def get_data(self, description: DataDescription, samples_num: list,
                  irrelevant_var_count: int = 0) -> np.ndarray:
         x_limits = description.x_bounds
         dimensions = description.x_dim
-        axes_num = int(samples_num ** (1 / dimensions))
         # создание значений по каждой координате
-        dim_values = [np.linspace(x_limits[dim][0], x_limits[dim][1], axes_num) for dim in range(dimensions)]
+        dim_values = [np.linspace(x_limits[dim][0], x_limits[dim][1], samples_num[dim]) for dim in range(dimensions)]
         # дублирование значений по координатам для создания сетки
         meshed_values = np.meshgrid(*dim_values)
         meshed_values = [v.ravel() for v in meshed_values]

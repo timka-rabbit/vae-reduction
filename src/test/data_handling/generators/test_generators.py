@@ -15,7 +15,7 @@ class TestGenerators(TestCase):
 
     def test_grid_2d(self):
         desc = DataDescription(x_dim=2, y_dim=1, x_bounds=[(0, 1), (0, 1)])
-        x = Grid().get_data(description=desc, samples_num=1000)
+        x = Grid().get_data(description=desc, samples_num=[32, 32])
         ui.plot2d_scatter(x[:, 0], x[:, 1], 'Генерация сетки точек')
 
     def test_rand_2d(self):
