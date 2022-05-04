@@ -1,4 +1,6 @@
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 import tensorflow as tf
 import numpy as np
 from tensorflow import keras
@@ -6,8 +8,6 @@ from tensorflow.keras.layers import Input, Dense, Flatten, Lambda, BatchNormaliz
 from tensorflow.keras.models import Model
 import tensorflow.keras.backend as K
 from sklearn.model_selection import train_test_split
-# import tensorflow.python.ops.numpy_ops.np_config as np_config
-
 
 from core.data_class import Data
 from core.data_description import DataDescription
@@ -15,7 +15,7 @@ from functions.abstract_function import AbstractFunc
 from core.nets.abstract_net import AbstractNet
 from core.data_handling.normalization.normalizer_class import Normalizer
 
-# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+# import tensorflow.python.ops.numpy_ops.np_config as np_config
 # np_config.enable_numpy_behavior()
 # np.seterr(divide='ignore', invalid='ignore')
 
@@ -38,7 +38,6 @@ class VAE(AbstractNet):
         :param batch_size: int. Размер батча (default=20)(размер выборки должен быть кратен размеру батча)
         :param hidden_dim: int. Размерность скрытого слоя (default=2)
         """
-        os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
         assert layers == len(enc_size) == len(dec_size)
         self.input_size = description.x_dim
         self.func = func
@@ -71,11 +70,11 @@ class VAE(AbstractNet):
             if type == 'enc':
                 for i in range(self.layers):
                     x = Dense(self.enc_size[i], activation='relu')(x)
-                    #x = dropout_and_batch(x)
+                    x = dropout_and_batch(x)
             elif type == 'dec':
                 for i in range(self.layers):
                     x = Dense(self.dec_size[i], activation='relu')(x)
-                    #x = dropout_and_batch(x)
+                    x = dropout_and_batch(x)
             return x
 
         input_enc = Input(shape=(self.input_size, 1))

@@ -1,7 +1,7 @@
 from core.optimazation.ego import EGO
 from core.optimazation.minimize import Minimizer
 from functions.abstract_function import AbstractFunc
-from core.data_handling.generators.regular_grid import Grid
+from core.data_handling.generators.rand_sequence import Rand
 from core.data_handling.generators.sobol_sequence import Sobol
 from core.data_description import DataDescription
 from core.data_class import Data
@@ -23,11 +23,11 @@ class TestVAE(TestCase):
         fit_count = 10000  # размерность выборки для обучения
         test_count = 200  # размерность выборки для тестирования
 
-        x = Grid().get_data(description=func.description, samples_num=fit_count, irrelevant_var_count=irr_dim)
+        x = Sobol().get_data(description=func.description, samples_num=fit_count, irrelevant_var_count=irr_dim)
         y = func.evaluate(x)
         data = Data(x, y, DataDescription(func.description.x_dim+irr_dim, func.description.y_dim))
 
-        test_x = Sobol().get_data(description=func.description, samples_num=test_count, irrelevant_var_count=irr_dim)
+        test_x = Rand().get_data(description=func.description, samples_num=test_count, irrelevant_var_count=irr_dim)
         test_y = func.evaluate(test_x)
 
         def predict_params(point: np.ndarray) -> np.ndarray:
@@ -51,10 +51,10 @@ class TestVAE(TestCase):
 
                 vae = VAE(description=data.description, func=func,
                           layers=1, enc_size=[4], dec_size=[4], epochs=n_epoch,
-                          batch_size=20, hidden_dim=h_dim)
+                          batch_size=b_size, hidden_dim=h_dim)
                 vae.fit(data)
                 vae.save('../../../data/net weights/vae/' +
-                         f'{func.func_name}_ego_{func.description.x_dim+irr_dim}_{h_dim}.h5')
+                         f'{func.name}_ego_{func.description.x_dim+irr_dim}_{h_dim}.h5')
                 pred_x = vae.predict(test_x)
                 pred_y = func.evaluate(pred_x)
                 res[i] = MAE().evaluate(test_y, pred_y)
@@ -67,9 +67,9 @@ class TestVAE(TestCase):
 
         epochs, batch, hidd = opt_params.squeeze()
         print(f'\nEpochs: {int(epochs)}\nBatch size: {int(batch)}\nHidden dim: {int(hidd)}')
-        vae = VAE(func=func, layers=1, enc_size=[3], dec_size=[3], epochs=int(epochs),
+        vae = VAE(func=func, layers=1, enc_size=[4], dec_size=[4], epochs=int(epochs),
                   batch_size=int(batch), hidden_dim=int(hidd))
-        vae.load(f'../../../data/net weights/vae/{func.func_name}_ego_{func.description.x_dim+irr_dim}_{int(hidd)}.h5')
+        vae.load(f'../../../data/net weights/vae/{func.name}_ego_{func.description.x_dim+irr_dim}_{int(hidd)}.h5')
         pred_x = vae.predict(test_x)
         pred_y = func.evaluate(pred_x)
         err = MAE().evaluate(test_y, pred_y)
