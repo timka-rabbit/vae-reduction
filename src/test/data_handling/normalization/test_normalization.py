@@ -12,7 +12,7 @@ from unittest import TestCase
 class TestNormalization(TestCase):
     def test_ellipse_norm_1(self):
         func = Ellipse(rx=4, ry=2)
-        x = Grid().get_data(func.description, 100)
+        x = Grid().get_data(func.description, [100, 100])
         y = func.evaluate(x)
         data = Data(y[:, 0, np.newaxis], y[:, 1, np.newaxis])
         ui.plot2d(data.x, data.y, 'Обычный график')
@@ -21,7 +21,7 @@ class TestNormalization(TestCase):
 
     def test_ellipse_norm_2(self):
         func = Ellipse(rx=4, ry=2)
-        x = Grid().get_data(func.description, 100)
+        x = Grid().get_data(func.description, [100, 100])
         y = func.evaluate(x)
         data = Data(y[:, 0, np.newaxis], y[:, 1, np.newaxis])
         ui.plot2d(data.x, data.y, 'Обычный график')
@@ -31,7 +31,7 @@ class TestNormalization(TestCase):
 
     def test_ellipse_denorm_1(self):
         func = Ellipse(center=(0.5, 0.5), rx=0.5, ry=0.5)
-        x = Grid().get_data(func.description, 100)
+        x = Grid().get_data(func.description, [100, 100])
         y = func.evaluate(x)
         data = Data(y[:, 0, np.newaxis], y[:, 1, np.newaxis])
         ui.plot2d(data.x, data.y, 'Обычный график')
@@ -41,7 +41,7 @@ class TestNormalization(TestCase):
 
     def test_ellipse_denorm_2(self):
         func = Ellipse(center=(0.5, 0.5), rx=0.5, ry=0.5)
-        x = Grid().get_data(func.description, 100)
+        x = Grid().get_data(func.description, [100, 100])
         y = func.evaluate(x)
         data = Data(y[:, 0, np.newaxis], y[:, 1, np.newaxis])
         ui.plot2d(data.x, data.y, 'Обычный график')

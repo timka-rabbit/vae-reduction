@@ -27,7 +27,7 @@ class Normalizer(object):
         """
         bounds_0, delta_x = Normalizer._verify(x, x_bounds)
 
-        norm_x = ((x - bounds_0) / delta_x)
+        norm_x = (x - bounds_0) / delta_x
         return norm_x
 
     @staticmethod
@@ -40,5 +40,5 @@ class Normalizer(object):
         """
         bounds_0, delta_x = Normalizer._verify(x, x_bounds)
 
-        x = bounds_0 + (x * delta_x)
-        return x
+        denorm_x = (x * delta_x) + bounds_0
+        return denorm_x

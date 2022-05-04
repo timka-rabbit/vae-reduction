@@ -12,12 +12,10 @@ class Rand(AbstractGenerator):
     """
     def get_data(self, description: DataDescription, samples_num: int,
                  irrelevant_var_count: int = 0) -> np.ndarray:
-        points = []
-        for k in range(samples_num):
-            point = []
-            for i in description.x_bounds:
-                point.append(random.uniform(i[0], i[1]))
-            points.append(np.array(point))
-        points = Normalizer.denorm(np.array(points), description.x_bounds)
+        points = np.zeros((samples_num, description.x_dim))
+        for i in range(samples_num):
+            for j in range(description.x_dim):
+                points[i, j] = random.uniform(0, 1)
+        points = Normalizer.denorm(points, description.x_bounds)
         points = self._add_irr_vars(description, np.array(points), irrelevant_var_count)
         return points
