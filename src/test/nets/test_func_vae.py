@@ -7,7 +7,7 @@ from core.data_description import DataDescription
 from core.data_class import Data
 from core.metrics.MAE import MAE
 
-from core.nets.vae import VAE
+from core.nets.func_vae import Func_VAE as VAE
 
 from functions.rastrigin_func import Rastrigin
 
@@ -17,29 +17,25 @@ from unittest import TestCase
 
 class TestVAE(TestCase):
     def test_vae(self):
-        batch_size = 25  # размер батчей
-        fit_count = 10000  # размерность выборки для обучения
-        test_count = 200  # размерность выборки для тестирования
         func = Rastrigin(n=6)
-        x = Sobol().get_data(description=func.description, samples_num=fit_count, irrelevant_var_count=0)
+        x = Sobol().get_data(description=func.description, samples_num=10000, irrelevant_var_count=0)
         y = func.evaluate(x)
         data = Data(x, y, DataDescription(func.description.x_dim, func.description.y_dim))
-        vae = VAE(description=data.description,
-                  enc_size=[4], dec_size=[4], epochs=30,
-                  batch_size=batch_size, hidden_dim=2)
-        # vae.fit(data)
-        # vae.save(f'../../../data/net weights/vae/{func.name}_{func.description.x_dim}_{2}.h5')
-        vae.load(f'../../../data/net weights/vae/{func.name}_{func.description.x_dim}_{2}.h5')
-        test_x = LHS().get_data(description=func.description, samples_num=test_count, irrelevant_var_count=0)
+        vae = VAE(description=data.description, func=func,
+                  layers=1, enc_size=[4], dec_size=[4], epochs=30,
+                  batch_size=25, hidden_dim=2)
+        #vae.fit(data)
+        #vae.save('../../../data/net weights/vae/' +
+        #         f'{func.name}_ego_{func.description.x_dim}_{2}.h5')
+        vae.load('../../../data/net weights/vae/' +
+                 f'{func.name}_ego_{func.description.x_dim}_{2}.h5')
+        test_x = LHS().get_data(description=func.description, samples_num=200, irrelevant_var_count=0)
         test_y = func.evaluate(test_x)
-        test = np.hstack((test_x, test_y))
-        res = 0
-        iter = test_count//batch_size
-        for i in range(0, test_count, batch_size):
-            pred = vae.predict(test[i:i+batch_size, :])
-            pred_x, pred_y = np.split(pred, indices_or_sections=[func.description.x_dim], axis=1)
-            res += MAE().evaluate(test_y[i:i+batch_size, :], pred_y)
-        print(f'MAE: {res / iter}')
+        pred_x = vae.predict(test_x[:25, :])
+        pred_y = func.evaluate(pred_x)
+        print(pred_x.shape)
+        res = MAE().evaluate(test_y[:25, :], pred_y)
+        print(f'MAE: {res}')
 
     def test_vae_ego_parameters(self, func: AbstractFunc, irr_dim: int = 0):
         n_iter = 10  # количество итераций EGO
@@ -70,8 +66,8 @@ class TestVAE(TestCase):
                 n_epoch = int(point[i, 0])
                 h_dim = int(point[i, 1])
 
-                vae = VAE(description=data.description,
-                          enc_size=[4], dec_size=[4], epochs=n_epoch,
+                vae = VAE(description=data.description, func=func,
+                          layers=1, enc_size=[4], dec_size=[4], epochs=n_epoch,
                           batch_size=25, hidden_dim=h_dim)
                 vae.fit(data)
                 vae.save(f'../../../data/net weights/vae/{func.name}_ego_{x_dim+irr_dim}_{h_dim}.h5')

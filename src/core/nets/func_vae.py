@@ -8,22 +8,24 @@ from sklearn.model_selection import train_test_split
 
 from core.data_class import Data
 from core.data_description import DataDescription
+from functions.abstract_function import AbstractFunc
 from core.nets.abstract_net import AbstractNet
 from core.data_handling.normalization.normalizer_class import Normalizer
 from tensorflow.python.ops.numpy_ops import np_config
 np_config.enable_numpy_behavior()
 
 
-class VAE(AbstractNet):
+class Func_VAE(AbstractNet):
     """
     Вариационный автоэнкодер
     """
 
-    def __init__(self, description: DataDescription,
+    def __init__(self, description: DataDescription, func: AbstractFunc,
                  enc_size=[], dec_size=[],
                  epochs=30, batch_size=20, hidden_dim=2):
         """
         :param description: DataDescription. Описание областей определения и значений.
+        :param func: AbstractFunc. Функция для обучения.
         :param enc_size: List. Список размерностей слоёв энкодера (default=[])
         :param dec_size: List. Список размерностей слоёв декодера (default=[])
         :param epochs: int. Число эпох обучения (default=30)
@@ -31,8 +33,8 @@ class VAE(AbstractNet):
         :param hidden_dim: int. Размерность скрытого слоя (default=2)
         """
         assert len(enc_size) == len(dec_size)
-        self.desc = description
-        self.input_size = description.x_dim + description.y_dim
+        self.input_size = description.x_dim
+        self.func = func
         self.enc_size = enc_size
         self.dec_size = dec_size
         self.epochs = epochs
@@ -94,7 +96,7 @@ class VAE(AbstractNet):
         :param data: Data. Данные для обучения.
         """
         train_x, test_x, train_y, test_y = train_test_split(data.get_x_norm(),
-                                                            data.get_y_norm(),
+                                                            data.get_x_norm(),
                                                             test_size=0.2,
                                                             random_state=42)
 
@@ -105,10 +107,7 @@ class VAE(AbstractNet):
         test_x = test_x[:test_sample_count]
         test_y = test_y[:test_sample_count]
 
-        train = np.hstack((train_x, train_y))
-        test = np.hstack((test_x, test_y))
-
-        self.model.fit(train, train, validation_data=(test, test),
+        self.model.fit(train_x, train_x, validation_data=(test_x, test_x),
                        epochs=self.epochs, batch_size=self.batch_size, shuffle=True)
 
     def loss(self, actual, expected) -> float:
@@ -118,13 +117,13 @@ class VAE(AbstractNet):
         :param expected: ndarray. Предсказанный вектор.
         :return: float. Ошибка между векторами (скаляр)
         """
-        actual = K.reshape(actual, shape=(self.batch_size, self.input_size)).numpy().astype(np.float32)
-        expected = K.reshape(expected, shape=(self.batch_size, self.input_size)).numpy().astype(np.float32)
-        actual_x = Normalizer.denorm(actual[:, :self.desc.x_dim], self.desc.x_bounds)
-        expected_x = Normalizer.denorm(expected[:, :self.desc.x_dim], self.desc.x_bounds)
-        actual_y = Normalizer.denorm(actual[:, self.desc.x_dim:], self.desc.y_bounds)
-        expected_y = Normalizer.denorm(expected[:, self.desc.x_dim:], self.desc.y_bounds)
-        loss = K.sum(K.square(actual_x - expected_x), axis=-1) + K.sum(K.abs(actual_y - expected_y), axis=-1)
+        actual = Normalizer.denorm(
+            K.reshape(actual, shape=(self.batch_size, self.input_size)).numpy().astype(np.float32),
+            self.func.description.x_bounds)
+        expected = Normalizer.denorm(
+            K.reshape(expected, shape=(self.batch_size, self.input_size)).numpy().astype(np.float32),
+            self.func.description.x_bounds)
+        loss = K.sum(K.abs(self.func.evaluate(actual) - self.func.evaluate(expected)), axis=-1)
         kl_loss = 0.5 * -0.5 * K.sum(1 + self.z_log_var - K.square(self.z_mean) - K.exp(self.z_log_var), axis=-1)
         return loss + kl_loss
 
@@ -134,14 +133,9 @@ class VAE(AbstractNet):
         :param points: np.ndarray. Точки для предсказания.
         :return: np.ndarray. Предсказанные точки.
         """
-        x, y = np.split(points, indices_or_sections=[self.desc.x_dim], axis=1)
-        norm_x = Normalizer.norm(x, self.desc.x_bounds)
-        norm_y = Normalizer.norm(y, self.desc.y_bounds)
-        pred = self.model.predict(np.hstack((norm_x, norm_y)))
-        pred_x, pred_y = np.split(pred, indices_or_sections=[self.desc.x_dim], axis=1)
-        denorm_x = Normalizer.denorm(pred_x, self.desc.x_bounds)
-        denorm_y = Normalizer.denorm(pred_y, self.desc.y_bounds)
-        return np.hstack((denorm_x, denorm_y))
+        return Normalizer.denorm(
+            self.model.predict(Normalizer.norm(points, self.func.description.x_bounds)),
+            self.func.description.x_bounds)
 
     def predict_encoder(self, points: np.ndarray) -> np.ndarray:
         """
@@ -149,11 +143,7 @@ class VAE(AbstractNet):
         :param points: np.ndarray. Точки для предсказания.
         :return: np.ndarray. Предсказанные точки скрытого слоя.
         """
-        x, y = np.split(points, indices_or_sections=[self.desc.x_dim], axis=1)
-        norm_x = Normalizer.norm(x, self.desc.x_dim)
-        norm_y = Normalizer.norm(y, self.desc.y_dim)
-        pred = self.encoder.predict(np.hstack((norm_x, norm_y)))
-        return pred
+        return self.encoder.predict(Normalizer.norm(points, self.func.description.x_bounds))
 
     def predict_decoder(self,  points: np.ndarray) -> np.ndarray:
         """
@@ -161,8 +151,4 @@ class VAE(AbstractNet):
         :param points: np.ndarray. Точки скрытого слоя для предсказания.
         :return: np.ndarray. Предсказанные точки исходного пространства.
         """
-        pred = self.decoder.predict(points)
-        pred_x, pred_y = np.split(pred, indices_or_sections=[self.desc.x_dim], axis=1)
-        denorm_x = Normalizer.denorm(pred_x, self.desc.x_dim)
-        denorm_y = Normalizer.denorm(pred_y, self.desc.y_dim)
-        return np.hstack((denorm_x, denorm_y))
+        return Normalizer.denorm(self.decoder.predict(points), self.func.description.x_bounds)
