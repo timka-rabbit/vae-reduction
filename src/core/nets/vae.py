@@ -53,11 +53,11 @@ class VAE(AbstractNet):
             if type == 'enc':
                 for i in range(len(self.enc_size)):
                     x = Dense(self.enc_size[i], activation='relu')(x)
-                    x = dropout_and_batch(x)
+                    #x = dropout_and_batch(x)
             elif type == 'dec':
                 for i in range(len(self.dec_size)):
                     x = Dense(self.dec_size[i], activation='relu')(x)
-                    x = dropout_and_batch(x)
+                    #x = dropout_and_batch(x)
             return x
 
         input_enc = Input(shape=(self.input_size, 1))
