@@ -1,4 +1,6 @@
 import numpy as np
+import random
+import time
 from typing import Union
 
 from core.data_description import DataDescription
@@ -30,7 +32,11 @@ class AbstractGenerator(object):
         :param irrelevant_var_count: int. Количество незначимых переменных.
         :return: Массив точек, расширенный незначимыми переменными.
         """
+        random.seed(a=time.time())
         if irrelevant_var_count != 0:
-            zeros = [[0] for i in range(irrelevant_var_count)]
-            points = np.insert(points, obj=description.x_dim, values=zeros, axis=1)
+            zeros = np.zeros((points.shape[0], irrelevant_var_count))
+            for i in range(points.shape[0]):
+                for j in range(irrelevant_var_count):
+                    zeros[i, j] = random.uniform(0, 1)
+            points = np.hstack((points, zeros))
         return points
