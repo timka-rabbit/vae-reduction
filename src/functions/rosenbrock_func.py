@@ -18,7 +18,7 @@ class Rosenbrock(AbstractFunc):
 
     @property
     def name(self) -> str:
-        return "Функция Розенброка размерности n"
+        return f'Функция Розенброка размерности {self.description.x_dim}'
 
     def evaluate(self, points) -> np.ndarray:
         points = self._verify(points)

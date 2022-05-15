@@ -29,7 +29,7 @@ class AbstractFunc(object):
         В случае прихода одной точки, оборачиваем её в двумерный массив.
         """
         if points.ndim == 1:
-            points = points.reshape(1, self._description.x_dim)
+            points = points.reshape(1, points.shape[0])
         assert points.shape[1] >= self._description.x_dim
         if points.shape[1] > self._description.x_dim:
             points = points[:, :self._description.x_dim]
