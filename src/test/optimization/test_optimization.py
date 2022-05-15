@@ -1,6 +1,7 @@
 from core.optimazation.abstract_optimizer import AbstractOptimizer
 from core.optimazation.ego import EGO
 from core.optimazation.minimize import Minimizer
+from core.optimazation.brute_force import BruteForce
 
 from functions.abstract_function import AbstractFunc
 from functions.rosenbrock_func import Rosenbrock
@@ -26,6 +27,10 @@ class TestOptimization(TestCase):
         func = Rosenbrock()
         self.test_opt_template(func=func, optimizer=Minimizer(func.description, method='Nelder-Mead'))
 
+    def test_brute_force_rosenbrock(self):
+        func = Rosenbrock()
+        self.test_opt_template(func=func, optimizer=BruteForce(func.description, 100))
+
     def test_ego_rastrigin(self):
         func = Rastrigin(n=2)
         self.test_opt_template(func=func, optimizer=EGO(func.description))
@@ -33,3 +38,7 @@ class TestOptimization(TestCase):
     def test_bfgs_rastrigin(self):
         func = Rastrigin(n=2)
         self.test_opt_template(func=func, optimizer=Minimizer(func.description, method='BFGS'))
+
+    def test_brute_force_rastrigin(self):
+        func = Rastrigin(n=2)
+        self.test_opt_template(func=func, optimizer=BruteForce(func.description, 100))

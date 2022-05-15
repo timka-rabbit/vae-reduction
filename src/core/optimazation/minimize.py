@@ -2,7 +2,6 @@ import numpy as np
 from scipy.optimize import minimize
 from core.data_handling.generators.lhs_sequence import LHS
 from core.data_description import DataDescription
-from core.data_handling.normalization.normalizer_class import Normalizer
 
 from core.optimazation.abstract_optimizer import AbstractOptimizer
 
@@ -22,16 +21,21 @@ class Minimizer(AbstractOptimizer):
         super().__init__(data_description=data_description)
         self.method = method
 
-    def optimize(self, func: callable, n_iter: int) -> np.ndarray:
+    def optimize(self, func: callable, n_iter: int, is_min: bool = True) -> np.ndarray:
         """
         Запуск алгоритма оптимизации
         :param func: callable. Функция для оптимизации.
         :param n_iter: int. Количество итераций алгоритма.
+        :param is_min: bool. True - поиск минимума, False - поиск максимума.
         :return: ndarray. Оптимальное решение в виде массива.
         """
         x0 = LHS().get_data(description=self.data_description,
                             samples_num=self.data_description.x_dim + 1)[0].reshape(1, self.data_description.x_dim)
-
-        res = minimize(fun=func, x0=x0, method=self.method,
-                       options={'maxiter': n_iter})
+        if is_min is False:
+            fun = lambda x: 1 / func(x)
+        else:
+            fun = func
+        res = minimize(fun=fun, x0=x0, method=self.method,
+                       options={'maxiter': n_iter},
+                       bounds=self.data_description.x_bounds)
         return res.x

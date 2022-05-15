@@ -9,11 +9,12 @@ class AbstractOptimizer(object):
         """
         self.data_description = data_description
 
-    def optimize(self, func: callable, n_iter: int) -> np.ndarray:
+    def optimize(self, func: callable, n_iter: int, is_min: bool = True) -> np.ndarray:
         """
         Запуск алгоритма оптимизации
         :param func: callable. Функция для оптимизации.
         :param n_iter: int. Количество итераций алгоритма.
+        :param is_min: bool. True - поиск минимума, False - поиск максимума.
         :return: ndarray. Оптимальное решение в виде массива.
         """
         raise NotImplementedError
