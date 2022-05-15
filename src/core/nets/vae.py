@@ -124,8 +124,8 @@ class VAE(AbstractNet):
         expected_x = Normalizer.denorm(expected[:, :self.desc.x_dim], self.desc.x_bounds)
         actual_y = Normalizer.denorm(actual[:, self.desc.x_dim:], self.desc.y_bounds)
         expected_y = Normalizer.denorm(expected[:, self.desc.x_dim:], self.desc.y_bounds)
-        loss = K.sum(K.square(actual_x - expected_x), axis=-1) + K.sum(K.abs(actual_y - expected_y), axis=-1)
-        kl_loss = 0.5 * -0.5 * K.sum(1 + self.z_log_var - K.square(self.z_mean) - K.exp(self.z_log_var), axis=-1)
+        loss = K.sqrt(K.mean(K.square(actual_x - expected_x), axis=-1)) + K.mean(K.abs(actual_y - expected_y), axis=-1)
+        kl_loss = -0.5 * K.sum(1 + self.z_log_var - K.square(self.z_mean) - K.exp(self.z_log_var), axis=-1)
         return loss + kl_loss
 
     def predict(self, points: np.ndarray) -> np.ndarray:
@@ -150,8 +150,8 @@ class VAE(AbstractNet):
         :return: np.ndarray. Предсказанные точки скрытого слоя.
         """
         x, y = np.split(points, indices_or_sections=[self.desc.x_dim], axis=1)
-        norm_x = Normalizer.norm(x, self.desc.x_dim)
-        norm_y = Normalizer.norm(y, self.desc.y_dim)
+        norm_x = Normalizer.norm(x, self.desc.x_bounds)
+        norm_y = Normalizer.norm(y, self.desc.y_bounds)
         pred = self.encoder.predict(np.hstack((norm_x, norm_y)))
         return pred
 
@@ -163,6 +163,6 @@ class VAE(AbstractNet):
         """
         pred = self.decoder.predict(points)
         pred_x, pred_y = np.split(pred, indices_or_sections=[self.desc.x_dim], axis=1)
-        denorm_x = Normalizer.denorm(pred_x, self.desc.x_dim)
-        denorm_y = Normalizer.denorm(pred_y, self.desc.y_dim)
+        denorm_x = Normalizer.denorm(pred_x, self.desc.x_bounds)
+        denorm_y = Normalizer.denorm(pred_y, self.desc.y_bounds)
         return np.hstack((denorm_x, denorm_y))
