@@ -5,7 +5,7 @@ from core.metrics.abstract_metric import AbstractMetric
 
 class RMSE(AbstractMetric):
     """
-    Класс подсчёта кореня среднеквадратичной ошибки
+    Класс подсчёта корня среднеквадратичной ошибки
     """
 
     def _do_evaluate(self, actual, expected) -> float:
