@@ -1,0 +1,6 @@
+Enc size:[5]
+Dec size:[5]
+Epochs:22
+Batch size:25
+Hidden dim:3
+Test size:0.2885720411901156
