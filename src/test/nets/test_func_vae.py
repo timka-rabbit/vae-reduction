@@ -1,5 +1,5 @@
 from core.optimazation.ego import EGO
-from core.optimazation.minimize import Minimizer
+from core.optimazation.minimize import ScipyOptimizer
 from functions.abstract_function import AbstractFunc
 from core.data_handling.generators.lhs_sequence import LHS
 from core.data_handling.generators.sobol_sequence import Sobol
