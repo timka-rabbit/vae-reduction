@@ -8,7 +8,7 @@ class MAE(AbstractMetric):
     Класс подсчёта средней абсолютной ошибки
     """
 
-    def _do_evaluate(self, actual, expected) -> float:
+    def _do_evaluate(self, actual: np.ndarray, expected: np.ndarray) -> float:
         """
         :param actual: np.ndarray. Двумерный массив эталонных значений.
         :param expected: np.ndarray. Двумерный массив предсказанных значений.

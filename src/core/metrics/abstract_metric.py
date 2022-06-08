@@ -17,7 +17,7 @@ class AbstractMetric(object):
         assert expected.shape == actual.shape
         return self._do_evaluate(actual, expected)
 
-    def _do_evaluate(self, actual: np.ndarray, expected=None):
+    def _do_evaluate(self, actual: np.ndarray, expected: np.ndarray):
         """
         Внутренний метод подсчета значения метрики
         """
