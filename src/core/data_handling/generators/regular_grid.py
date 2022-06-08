@@ -8,8 +8,17 @@ class Grid(AbstractGenerator):
     """
     Генерация данных на равномерной сетке
     """
+
     def get_data(self, description: DataDescription, samples_num: list,
                  irrelevant_var_count: int = 0) -> np.ndarray:
+        """
+        Генерация данных
+        :param description: DataDescription. Описание областей определения и значений.
+        :param samples_num: Union[int, list]. Для генераторов указывается количество точек.
+        Для сетки нужно указывать явно число точек для каждой координаты в виде списка.
+        :param irrelevant_var_count: int. Количество незначимых параметров.
+        :return: Массив записей.
+        """
         x_limits = description.x_bounds
         dimensions = description.x_dim
         # создание значений по каждой координате
@@ -19,5 +28,5 @@ class Grid(AbstractGenerator):
         meshed_values = [v.ravel() for v in meshed_values]
         # объединение значений в точки размерности (m, n) где m число точек в сетке, n - размерность пространства
         points = np.stack(meshed_values).T
-        points = self._add_irr_vars(description, points, irrelevant_var_count)
+        points = self._add_irr_vars(points, irrelevant_var_count)
         return points

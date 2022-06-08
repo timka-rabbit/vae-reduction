@@ -23,11 +23,9 @@ class AbstractGenerator(object):
         """
         raise NotImplementedError
 
-    def _add_irr_vars(self,  description: DataDescription,
-                      points: np.ndarray, irrelevant_var_count: int) -> np.ndarray:
+    def _add_irr_vars(self, points: np.ndarray, irrelevant_var_count: int) -> np.ndarray:
         """
         Добавление незначимых переменных
-        :param description: DataDescription. Описание облпстей определения и значений.
         :param points: ndarray. Массив точек.
         :param irrelevant_var_count: int. Количество незначимых переменных.
         :return: Массив точек, расширенный незначимыми переменными.
