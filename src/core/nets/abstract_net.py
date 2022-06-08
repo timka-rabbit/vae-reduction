@@ -40,11 +40,18 @@ class AbstractNet(object):
         Сохранение весов модели
         :param filename: str. Имя файла для сохранения.
         """
-        self.model.save_weights(filename)
+        NotImplementedError
 
     def load(self, filename: str):
         """
         Загрузка весов модели
         :param filename: str. Имя файла для загрузки.
         """
-        self.model.load_weights(filename)
+        NotImplementedError
+
+    def save_params(self, filename: str):
+        """
+        Сохранение гиперпараметров модели
+        :param filename: str. Имя файла для сохранения.
+        """
+        NotImplementedError

@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from tensorflow import keras
-from tensorflow.keras.layers import Input, Dense, Flatten, Lambda, BatchNormalization, Dropout
+from tensorflow.keras.layers import Input, Dense, Flatten, BatchNormalization, Dropout
 from tensorflow.keras.models import Model
 import tensorflow.keras.backend as K
 from sklearn.model_selection import train_test_split
@@ -14,9 +14,9 @@ from tensorflow.python.ops.numpy_ops import np_config
 np_config.enable_numpy_behavior()
 
 
-class VAE(AbstractNet):
+class AE(AbstractNet):
     """
-    Вариационный автоэнкодер
+    Автоэнкодер
     """
 
     def __init__(self, description: DataDescription,
@@ -43,8 +43,6 @@ class VAE(AbstractNet):
 
         self.encoder = None  # модель энкодера
         self.decoder = None  # модель декодера
-        self.z_mean = None  # математическое ожидание скрытого слоя
-        self.z_log_var = None  # дисперсия скрытого слоя
         self.__init_model()
 
     def __init_model(self):
@@ -66,16 +64,7 @@ class VAE(AbstractNet):
         x = Flatten()(input_enc)
         x = create_layers(x, type='enc')
 
-        self.z_mean = Dense(self.hidden_dim)(x)
-        self.z_log_var = Dense(self.hidden_dim)(x)
-
-        def noiser(args):
-            self.z_mean, self.z_log_var = args
-            N = K.random_normal(shape=(self.batch_size, self.hidden_dim), mean=0., stddev=1.0)
-            ex = K.exp(self.z_log_var / 2)
-            return ex * N + self.z_mean
-
-        h = Lambda(noiser, output_shape=(self.hidden_dim,))([self.z_mean, self.z_log_var])
+        h = Dense(self.hidden_dim, activation='sigmoid')(x)
 
         input_dec = Input(shape=(self.hidden_dim,))
         d = create_layers(input_dec, type='dec')
@@ -84,7 +73,7 @@ class VAE(AbstractNet):
 
         self.encoder = Model(input_enc, h, name='encoder')
         self.decoder = Model(input_dec, decoded, name='decoder')
-        self.model = Model(input_enc, self.decoder(self.encoder(input_enc)), name="vae")
+        self.model = Model(input_enc, self.decoder(self.encoder(input_enc)), name="ae")
 
         optimizer = keras.optimizers.Adam(learning_rate=0.05)
         self.model.compile(optimizer=optimizer, loss=self.loss, metrics=['accuracy'], run_eagerly=True)
@@ -95,30 +84,29 @@ class VAE(AbstractNet):
         Сохранение весов модели
         :param filename: str. Имя файла для сохранения.
         """
-        self.model.save_weights('../../../data/net weights/vae/' + filename)
+        self.model.save_weights('../../../data/net weights/ae/' + filename)
 
     def load(self, filename: str):
         """
         Загрузка весов модели
         :param filename: str. Имя файла для загрузки.
         """
-        self.model.load_weights('../../../data/net weights/vae/' + filename)
+        self.model.load_weights('../../../data/net weights/ae/' + filename)
 
     def save_params(self, filename: str):
         """
         Сохранение гиперпараметров модели
         :param filename: str. Имя файла для сохранения.
         """
-        with open('../../../data/params/vae/' + filename, 'w+') as f:
-            f.write('Enc size:[' + ''.join([f'{self.enc_size[i]},' if i != len(self.enc_size)-1
+        with open('../../../data/params/ae/' + filename, 'w+') as f:
+            f.write('Enc size:[' + ''.join([f'{self.enc_size[i]},'if i != len(self.enc_size)-1
                                             else f'{self.enc_size[i]}' for i in range(len(self.enc_size))]) + ']\n')
             f.write('Dec size:[' + ''.join([f'{self.dec_size[i]},' if i != len(self.dec_size)-1
                                             else f'{self.dec_size[i]}' for i in range(len(self.dec_size))]) + ']\n')
             f.write(f'Epochs:{self.epochs}\n')
             f.write(f'Batch size:{self.batch_size}\n')
-            f.write(f'Hidden dim:{self.hidden_dim}\n')
-            f.write(f'Test size:{self.test_size}')
-        self.model.save_weights('../../../data/net weights/vae/' + filename.replace('.txt', '.h5'))
+            f.write(f'Hidden dim:{self.hidden_dim}')
+        self.model.save_weights('../../../data/net weights/ae/' + filename.replace('.txt', '.h5'))
 
     @staticmethod
     def create_from_file(description: DataDescription, filename: str):
@@ -128,16 +116,16 @@ class VAE(AbstractNet):
         :param filename: Имя файла.
         :return: Созданная модель с загруженными весами.
         """
-        with open('../../../data/params/vae/' + filename, 'r') as f:
+        with open('../../../data/params/ae/' + filename, 'r') as f:
             enc_size = list(map(int, f.readline().split(':')[1][1:-2].split(',')))
             dec_size = list(map(int, f.readline().split(':')[1][1:-2].split(',')))
             epochs = int(f.readline().split(':')[1])
             batch_size = int(f.readline().split(':')[1])
             hidden_dim = int(f.readline().split(':')[1])
-            test_size = float(f.readline().split(':')[1])
-        model = VAE(description=description, enc_size=enc_size, dec_size=dec_size,
-                    epochs=epochs, batch_size=batch_size, hidden_dim=hidden_dim, test_size=test_size)
-        model.load('../../../data/net weights/vae/' + filename.replace('.txt', '.h5'))
+
+        model = AE(description=description, enc_size=enc_size, dec_size=dec_size,
+                   epochs=epochs, batch_size=batch_size, hidden_dim=hidden_dim)
+        model.load('../../../data/net weights/ae/' + filename.replace('.txt', '.h5'))
         return model
 
     def fit(self, data: Data):
@@ -179,16 +167,15 @@ class VAE(AbstractNet):
         :param expected: ndarray. Предсказанный вектор.
         :return: float. Ошибка между векторами (скаляр)
         """
-        actual = K.reshape(actual, shape=(self.batch_size, self.input_size)).numpy().astype(np.float32)
-        expected = K.reshape(expected, shape=(self.batch_size, self.input_size)).numpy().astype(np.float32)
+        # actual = K.reshape(actual, shape=(self.batch_size, self.input_size)).numpy().astype(np.float32)
+        # expected = K.reshape(expected, shape=(self.batch_size, self.input_size)).numpy().astype(np.float32)
         actual_x = Normalizer.denorm(actual[:, :self.desc.x_dim], self.desc.x_bounds)
         expected_x = Normalizer.denorm(expected[:, :self.desc.x_dim], self.desc.x_bounds)
         actual_y = Normalizer.denorm(actual[:, self.desc.x_dim:], self.desc.y_bounds)
         expected_y = Normalizer.denorm(expected[:, self.desc.x_dim:], self.desc.y_bounds)
         loss = K.sqrt(K.mean(K.square(actual_x - expected_x), axis=-1))\
                + K.sqrt(K.mean(K.square(actual_y - expected_y), axis=-1))
-        kl_loss = -0.5 * K.sum(1 + self.z_log_var - K.square(self.z_mean) - K.exp(self.z_log_var), axis=-1)
-        return loss * kl_loss
+        return loss
 
     def predict(self, points: np.ndarray) -> np.ndarray:
         """
