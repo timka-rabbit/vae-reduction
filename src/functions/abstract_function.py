@@ -7,6 +7,7 @@ class AbstractFunc(object):
     """
     Интерфейс функции
     """
+
     def __init__(self, description: DataDescription):
         self._description = description
 
