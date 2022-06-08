@@ -3,6 +3,10 @@ from core.data_description import DataDescription
 
 
 class AbstractOptimizer(object):
+    """
+    Абстрактный класс алгоритмов оптимизации
+    """
+
     def __init__(self, data_description: DataDescription):
         """
         :param data_description: DataDescription. Описание областей определения и значений.

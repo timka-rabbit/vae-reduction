@@ -6,7 +6,11 @@ from core.data_description import DataDescription
 from core.optimazation.abstract_optimizer import AbstractOptimizer
 
 
-class Minimizer(AbstractOptimizer):
+class ScipyOptimizer(AbstractOptimizer):
+    """
+    Класс алгоритмов оптимизации из scipy.optimize.minimize
+    """
+
     def __init__(self, data_description: DataDescription, method: str = 'BFGS'):
         """
         :param data_description: DataDescription. Описание области определения.

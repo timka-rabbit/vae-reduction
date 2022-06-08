@@ -7,6 +7,10 @@ from core.optimazation.abstract_optimizer import AbstractOptimizer
 
 
 class EGO(AbstractOptimizer):
+    """
+    Алгоритм эффективной глобальной оптимизации
+    """
+
     def __init__(self, data_description: DataDescription, criterion: str = 'EI'):
         """
         :param data_description: DataDescription. Описание области определения.
